@@ -1,39 +1,55 @@
 package pl.jakubtworek.ChampionsLeagueMatches.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import pl.jakubtworek.ChampionsLeagueMatches.model.Event;
+import pl.jakubtworek.ChampionsLeagueMatches.controller.response.MatchResponse;
+import pl.jakubtworek.ChampionsLeagueMatches.model.*;
+import pl.jakubtworek.ChampionsLeagueMatches.service.MatchesService;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping
 public class MatchesController {
-    @GetMapping("/mocked-api")
-    public ResponseEntity<List<Event>> getRadarData() throws IOException {
-        ClassPathResource staticDataResource = new ClassPathResource("BE_data.json");
-        String staticDataString = IOUtils.toString(staticDataResource.getInputStream(), StandardCharsets.UTF_8);
+    private final MatchesService matchesService;
 
-        ObjectMapper obj = new ObjectMapper();
+    public MatchesController(MatchesService matchesService) {
+        this.matchesService = matchesService;
+    }
 
-        Map<String, Object> map = new JSONObject(staticDataString).toMap();
-        List<Event> events = new ArrayList<>();
-
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            Object value = entry.getValue();
-            String z = obj.writeValueAsString(value);
-            Event[] x = obj.readValue(z, Event[].class);
-            events.addAll(Arrays.asList(x));
-        }
+    @GetMapping("/matches/{numberOfMatches}")
+    public ResponseEntity<List<MatchResponse>> getMostProbableResults(@PathVariable int numberOfMatches) throws IOException {
+        List<MatchResponse> matches = matchesService.getMostProbableResults(numberOfMatches)
+                .stream()
+                .map(Event::toResponse)
+                .collect(Collectors.toList());
 
         return new ResponseEntity<>(
-                events,
+                matches,
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/teams/{competition}")
+    public ResponseEntity<List<String>> getTeamsByCompetition(@PathVariable String competition) throws IOException {
+
+        String[] strs = competition.split("%20");
+        StringBuilder competitionName = new StringBuilder();
+        for (String str : strs) {
+            competitionName.append(str).append(" ");
+        }
+        competitionName.deleteCharAt(competitionName.toString().length() - 1);
+
+        List<String> teams = matchesService.getTeamsByCompetition(competitionName.toString())
+                .stream()
+                .map(Competitor::getName)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(
+                teams,
                 HttpStatus.OK
         );
     }
