@@ -1,6 +1,9 @@
 package pl.jakubtworek.ChampionsLeagueMatches.model;
 
-import java.util.List;
+import pl.jakubtworek.ChampionsLeagueMatches.controller.response.MatchResponse;
+
+import java.util.*;
+import java.util.stream.Stream;
 
 public class Event {
     private String sport_name;
@@ -103,6 +106,22 @@ public class Event {
         this.start_date = start_date;
     }
 
+    public double findHighestPossibility() {
+        return Stream.of(probability_draw, probability_away_team_winner, probability_home_team_winner).max(Comparator.comparingDouble(p -> p)).get();
+    }
+
+    public String findNameOfHighestPossibility() {
+        double highestProbability = this.findHighestPossibility();
+
+        if (highestProbability == probability_home_team_winner) {
+            return "HOME_TEAM_WIN";
+        } else if (highestProbability == probability_away_team_winner) {
+            return "AWAY_TEAM_WIN";
+        } else {
+            return "DRAW";
+        }
+    }
+
     @Override
     public String toString() {
         return "Event{" +
@@ -118,5 +137,23 @@ public class Event {
                 ", sport_event_id='" + sport_event_id + '\'' +
                 ", start_date='" + start_date + '\'' +
                 '}';
+    }
+
+    public MatchResponse toResponse() {
+        double highestProbableResult = this.findHighestPossibility();
+        String nameOfHighestProbableResult = this.findNameOfHighestPossibility();
+        // TODO: add check which team is away and home
+        // TODO: add date format
+
+        return MatchResponse.builder()
+                .date(start_date)
+                .competition(competition_name)
+                .homeName(competitors.get(0).getName())
+                .homeCountry(competitors.get(0).getCountry())
+                .awayName(competitors.get(1).getName())
+                .awayCountry(competitors.get(1).getCountry())
+                .venueName(venue.getName())
+                .highestProbableResult(nameOfHighestProbableResult + " (" + highestProbableResult + ")")
+                .build();
     }
 }

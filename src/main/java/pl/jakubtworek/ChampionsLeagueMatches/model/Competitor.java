@@ -1,5 +1,7 @@
 package pl.jakubtworek.ChampionsLeagueMatches.model;
 
+import java.util.Objects;
+
 public class Competitor {
     private String country;
     private String country_code;
@@ -76,5 +78,18 @@ public class Competitor {
                 ", id='" + id + '\'' +
                 ", abbreviation='" + abbreviation + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Competitor that = (Competitor) o;
+        return Objects.equals(country, that.country) && Objects.equals(country_code, that.country_code) && Objects.equals(gender, that.gender) && Objects.equals(qualifier, that.qualifier) && Objects.equals(name, that.name) && Objects.equals(id, that.id) && Objects.equals(abbreviation, that.abbreviation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(country, country_code, gender, qualifier, name, id, abbreviation);
     }
 }
