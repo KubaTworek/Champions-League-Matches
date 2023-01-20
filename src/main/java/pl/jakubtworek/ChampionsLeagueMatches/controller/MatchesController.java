@@ -47,7 +47,7 @@ public class MatchesController {
         );
     }
 
-    private String extractWhiteSpacesFromName(String name){
+    private String extractWhiteSpacesFromName(String name) {
         String[] parts = name.split("%20");
         StringBuilder sb = new StringBuilder();
 

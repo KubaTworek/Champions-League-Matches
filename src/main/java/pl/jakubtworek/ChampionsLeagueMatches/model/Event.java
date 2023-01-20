@@ -36,21 +36,33 @@ public class Event {
         }
     }
 
+    public String findCompetitors() {
+        String[] competitors = new String[4];
+        for (Competitor competitor : this.competitors) {
+            if (Objects.equals(competitor.getQualifier(), "home")) {
+                competitors[0] = competitor.getName();
+                competitors[1] = competitor.getCountry();
+            } else {
+                competitors[2] = competitor.getName();
+                competitors[3] = competitor.getCountry();
+            }
+        }
+        return competitors[0] + " (" + competitors[1] + ") vs. " + competitors[2] + " (" + competitors[3] + ")";
+    }
+
     public MatchResponse toResponse() {
-        double highestProbableResult = this.findHighestPossibility();
-        String nameOfHighestProbableResult = this.findNameOfHighestPossibility();
-        // TODO: add check which team is away and home
-        // TODO: add date format
+        String date = start_date
+                .substring(0, start_date.length() - 6)
+                .replace('T', ' ');
+        String competitors = this.findCompetitors();
+        String venueName = venue.getName();
+        String highestProbableResult = this.findNameOfHighestPossibility() + " (" + this.findHighestPossibility() + ")";
 
         return MatchResponse.builder()
-                .date(start_date)
-                .competition(competition_name)
-                .homeName(competitors.get(0).getName())
-                .homeCountry(competitors.get(0).getCountry())
-                .awayName(competitors.get(1).getName())
-                .awayCountry(competitors.get(1).getCountry())
-                .venueName(venue.getName())
-                .highestProbableResult(nameOfHighestProbableResult + " (" + highestProbableResult + ")")
+                .startDate(date)
+                .competitors(competitors)
+                .venue(venueName)
+                .highestProbableResult(highestProbableResult)
                 .build();
     }
 }
