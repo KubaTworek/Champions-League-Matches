@@ -34,18 +34,11 @@ public class MatchesController {
 
     @GetMapping("/teams/{competition}")
     public ResponseEntity<List<String>> getTeamsByCompetition(@PathVariable String competition) throws IOException {
+        String competitionName = extractWhiteSpacesFromName(competition);
 
-        String[] strs = competition.split("%20");
-        StringBuilder competitionName = new StringBuilder();
-        for (String str : strs) {
-            competitionName.append(str).append(" ");
-        }
-        competitionName.deleteCharAt(competitionName.toString().length() - 1);
-
-        List<String> teams = matchesService.getTeamsByCompetition(competitionName.toString())
+        List<String> teams = matchesService.getTeamsByCompetition(competitionName)
                 .stream()
                 .map(Competitor::getName)
-                .distinct()
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(
@@ -54,4 +47,15 @@ public class MatchesController {
         );
     }
 
+    private String extractWhiteSpacesFromName(String name){
+        String[] parts = name.split("%20");
+        StringBuilder sb = new StringBuilder();
+
+        for (String part : parts) {
+            sb.append(part).append(" ");
+        }
+        sb.deleteCharAt(sb.toString().length() - 1);
+
+        return sb.toString();
+    }
 }

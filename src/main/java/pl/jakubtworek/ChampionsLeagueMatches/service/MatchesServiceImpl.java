@@ -21,25 +21,23 @@ public class MatchesServiceImpl implements MatchesService {
         List<Event> matches = matchesDAO.findAll().stream()
                 .sorted(Comparator.comparingDouble(Event::findHighestPossibility))
                 .collect(Collectors.toList());
+
         Collections.reverse(matches);
 
-        return matches.stream().limit(numberOfMatches).collect(Collectors.toList());
+        return matches.stream()
+                .limit(numberOfMatches)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Competitor> getTeamsByCompetition(String competition) throws IOException {
-        List<Event> matches = matchesDAO.findAll()
+        Set<Competitor> teams = new TreeSet<>(Comparator.comparing(Competitor::getName));
+
+        matchesDAO.findAll()
                 .stream()
                 .filter(m -> Objects.equals(m.getCompetition_name(), competition))
-                .toList();
-        List<Competitor> teams = new ArrayList<>();
+                .forEach(e -> teams.addAll(e.getCompetitors()));
 
-        for (Event event : matches) {
-            teams.addAll(event.getCompetitors());
-        }
-
-        return teams.stream()
-                .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
-                .collect(Collectors.toList());
+        return new ArrayList<>(teams);
     }
 }
