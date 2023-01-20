@@ -13,5 +13,4 @@ public class MatchResponse {
     private String awayCountry;
     private String venueName;
     private String highestProbableResult;
-
 }
