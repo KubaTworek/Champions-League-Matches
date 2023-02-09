@@ -36,10 +36,7 @@ public class MatchesController {
     public ResponseEntity<List<String>> getTeamsByCompetition(@PathVariable String competition) throws IOException {
         String competitionName = extractWhiteSpacesFromName(competition);
 
-        List<String> teams = matchesService.getTeamsByCompetition(competitionName)
-                .stream()
-                .map(Competitor::getName)
-                .collect(Collectors.toList());
+        List<String> teams = matchesService.getTeamsByCompetition(competitionName);
 
         return new ResponseEntity<>(
                 teams,

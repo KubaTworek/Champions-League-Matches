@@ -53,11 +53,9 @@ class MatchesControllerTest {
     @Test
     void shouldReturnTeams() throws Exception {
         // given
-        List<Competitor> matches = new ArrayList<>();
-        matches.add(new Competitor());
-        matches.add(new Competitor());
-        matches.get(0).setName("Real Madryt");
-        matches.get(1).setName("FC Barcelona");
+        List<String> matches = new ArrayList<>();
+        matches.add("Real Madryt");
+        matches.add("FC Barcelona");
 
         // when
         when(matchesService.getTeamsByCompetition(anyString())).thenReturn(matches);

@@ -18,26 +18,20 @@ public class MatchesServiceImpl implements MatchesService {
 
     @Override
     public List<Event> getMostProbableResults(int numberOfMatches) throws IOException {
-        List<Event> matches = matchesDAO.findAll().stream()
-                .sorted(Comparator.comparingDouble(Event::findHighestPossibility))
-                .collect(Collectors.toList());
 
-        Collections.reverse(matches);
-
-        return matches.stream()
+        return matchesDAO.findAll().stream()
+                .sorted(Comparator.comparingDouble(Event::findHighestPossibility).reversed())
                 .limit(numberOfMatches)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
-    public List<Competitor> getTeamsByCompetition(String competition) throws IOException {
-        Set<Competitor> teams = new TreeSet<>(Comparator.comparing(Competitor::getName));
+    public List<String> getTeamsByCompetition(String competition) throws IOException {
 
-        matchesDAO.findAll()
+        return matchesDAO.findAll()
                 .stream()
                 .filter(m -> Objects.equals(m.getCompetition_name(), competition))
-                .forEach(e -> teams.addAll(e.getCompetitors()));
-
-        return new ArrayList<>(teams);
+                .flatMap(e -> e.getCompetitors().stream())
+                .map(Competitor::getName).distinct().collect(Collectors.toList());
     }
 }
